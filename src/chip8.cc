@@ -292,59 +292,68 @@ void Chip8::InterpretInstruction(const uint16_t opcode) {
           break;
         }
         case 0x0004: {  // 8xy4: ADD Vx, Vy
+          const int carry = ((static_cast<int>(v_[x]) + static_cast<int>(v_[y])) > 255) ? 1 : 0;
+          const int res = v_[x] + v_[y];
           DebugMessage(
             "[0x8xy4: ADD Vx, Vy]\n"
             "    Store Vx + Vy into register Vx: store carry VF = %d\n"
             "    and set Vx = 0x%02X + 0x%02X = 0x%02X.\n",
-            ((static_cast<int>(v_[x]) + static_cast<int>(v_[y])) > 255) ? 1 : 0,
-            v_[x], v_[y], v_[x] + v_[y]);
-          v_[0xF] = ((static_cast<int>(v_[x]) + static_cast<int>(v_[y])) > 255)
-                    ? 1 : 0;
-          v_[x] = v_[x] + v_[y];
+            carry,
+            v_[x], v_[y], res);
+          v_[x] = res;
+          v_[0xF] = carry;
           break;
         }
         case 0x0005: {  // 8xy5: SUB Vx, Vy
+          const int no_borrow = (v_[x] >= v_[y]) ? 1 : 0;
+          const int res = v_[x] - v_[y];
           DebugMessage(
             "[0x8xy5: SUB Vx, Vy]\n"
             "    Store Vx - Vy into register Vx: store carry VF = %d\n"
-            "    because Vx %c Vy and set Vx = 0x%02X - 0x%02X = 0x%02X.\n",
-            (v_[x] > v_[y]) ?  1 : 0, (v_[x] > v_[y]) ?  '>' : '<',
-            v_[x], v_[y], v_[x] - v_[y]);
-          v_[0xF] = (v_[x] > v_[y]) ? 1 : 0;
-          v_[x] = v_[x] - v_[y];
+            "    because Vx %s Vy and set Vx = 0x%02X - 0x%02X = 0x%02X.\n",
+            no_borrow, no_borrow ?  ">=" : "<",
+            v_[x], v_[y], res);
+          v_[x] = res;
+          v_[0xF] = no_borrow;
           break;
         }
         case 0x0006: {  // 8xy6: SHR Vx {, Vy}
+          const int lsb = v_[x] & 0x01;
+          const int res = v_[x] >> 1;
           DebugMessage(
             "[0x8xy6: SHR Vx{, Vy}]\n"
             "    Shift right Vx one bit: store least significant bit VF = %d\n"
             "    and set Vx = (0x%02X >> 1) = 0x%02X.\n",
-            v_[x] & 0x01,
-            v_[x], v_[x] >> 1);
-          v_[0xF] = v_[x] & 0x01;
-          v_[x] >>= 1;
+            lsb,
+            v_[x], res);
+          v_[x] = res;
+          v_[0xF] = lsb;
           break;
         }
         case 0x0007: {  // 8xy7: SUBN Vx, Vy
+          const int no_borrow = (v_[y] >= v_[x]) ?  1 : 0;
+          const int res = v_[y] - v_[x];
           DebugMessage(
             "[0x8xy7: SUBN Vx, Vy]\n"
             "    Store Vy - Vx into register Vx: store carry VF = %d\n"
-            "    because Vy %c Vx and set Vx = 0x%02X - 0x%02X = 0x%02X.\n",
-            (v_[y] > v_[x]) ?  1 : 0, (v_[y] > v_[x]) ?  '>' : '<',
-            v_[y], v_[x], v_[y] - v_[x]);
-          v_[0xF] = (v_[y] > v_[x]) ? 1 : 0;
-          v_[x] = v_[y] - v_[x];
+            "    because Vy %s Vx and set Vx = 0x%02X - 0x%02X = 0x%02X.\n",
+            no_borrow, no_borrow ? ">=" : "<",
+            v_[y], v_[x], res);
+          v_[x] = res;
+          v_[0xF] = no_borrow;
           break;
         }
         case 0x000E: {  // 8xyE: SHL Vx{, Vy}
+          const int msb = v_[x] & 0x80 ? 1 : 0;
+          const int res = v_[x] << 1;
           DebugMessage(
             "[0x8xyE: SHL Vx{, Vy}]\n"
             "    Shift left Vx one bit: store most significant bit VF = %d\n"
             "    and set Vx = (0x%02X << 1) = 0x%02X.\n",
-            v_[x] & 0x80,
-            v_[x], v_[x] << 1);
-          v_[0xF] = v_[x] & 0x80;
-          v_[x] <<= 1;
+            msb,
+            v_[x], res);
+          v_[x] = res;
+          v_[0xF] = msb;
           break;
         }
         default: UnknownInstruction(opcode);

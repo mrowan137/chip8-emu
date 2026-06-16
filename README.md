@@ -23,20 +23,21 @@ Chip8-Emu depends on the following libraries:
 From the `chip8-emu` directory,
 ```bash
 mkdir build && cd build
-cmake -DCMAKE_BUILD_TYPE=Release -DOPENSSL_ROOT_DIR="/path/to/openssl" ..
+cmake -DCMAKE_BUILD_TYPE=Release -DOPENSSL_ROOT_DIR="<path to openssl>" ..
+make -j
 ```
 
 ## Usage
 
 After building the code, a Chip-8 program ('ROM') can be run as:
 ```bash
-./chip8 --play /PATH/TO/ROM
+./chip8 --play "<path to rom>"
 ```
 
 A library of known Chip-8 ROMs can be searched for info about the ROM, which
 prints some information about the ROM (if present):
 ```bash
-./chip8 --info /PATH/TO/ROM
+./chip8 --info "<path to rom>"
 ```
 
 Controls:
